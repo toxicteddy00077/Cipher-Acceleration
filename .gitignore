@@ -4,3 +4,25 @@
 *.ptx
 *.cubin
 *.fatbin
+
+# Build directories
+build/
+cmake-build-debug/
+cmake-build-release/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Compiled objects
+*.o
+*.a
+*.so
+*.dylib
+
+# CMake
+CMakeUserPresets.json
