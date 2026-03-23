@@ -4,6 +4,18 @@ project(CipherAcceleration LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Optional CUDA support
+find_package(CUDA)
+
+if(CUDA_FOUND)
+    enable_language(CUDA)
+    set(CMAKE_CUDA_STANDARD 17)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+    message(STATUS "CUDA found, building GPU libraries")
+else()
+    message(STATUS "CUDA not found, GPU libraries will not be built")
+endif()
+
 # AES-256 Library
 add_library(aes256 STATIC
     CPU/src/aes256/Constants.cpp
@@ -96,3 +108,38 @@ target_compile_options(trivium PRIVATE
 #     target_link_libraries(test_aes256 aes256)
 # endif()
 
+
+# ============================================================
+# GPU Libraries (if CUDA is available)
+# ============================================================
+
+if(CUDA_FOUND)
+
+# AES-256 GPU Library
+add_library(aes256_gpu STATIC
+    GPU/src/aes256/aes256_kernel.cu
+    GPU/src/aes256/aes256_host.cu
+)
+
+target_include_directories(aes256_gpu PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/GPU/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
+)
+
+target_link_libraries(aes256_gpu PUBLIC aes256)
+
+set_target_properties(aes256_gpu PROPERTIES
+    CUDA_ARCHITECTURES "75;86;89"
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_STANDARD 17
+)
+
+target_compile_options(aes256_gpu PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:
+        -Xptxas -O3;
+        -use_fast_math;
+        -lineinfo
+    >
+)
+
+endif(CUDA_FOUND)
