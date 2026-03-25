@@ -62,3 +62,72 @@ std::array<SIMON_word, SIMON64_Constants::ROUNDS> KeySchedule::ExpandKey(const s
 }
 
 }
+
+void SIMON64_Utils::Modes::ECB_Encrypt(const uint8_t* key, const uint8_t* plaintext,
+                                       uint8_t* ciphertext, std::size_t length) {
+    std::array<uint8_t, 16> master_key;
+    for (int i = 0; i < 16; i++) master_key[i] = key[i];
+    auto rk = KeySchedule::ExpandKey(master_key);
+    
+    for (std::size_t i = 0; i < length; i += 8) {
+        SIMON64_State state;
+        state.Load(plaintext + i);
+        
+        for (int r = 0; r < 32; r++)
+            Primitives::EncryptRound(state.left, state.right, rk[r]);
+        
+        state.Store(ciphertext + i);
+    }
+}
+
+void SIMON64_Utils::Modes::ECB_Decrypt(const uint8_t* key, const uint8_t* ciphertext,
+                                       uint8_t* plaintext, std::size_t length) {
+    std::array<uint8_t, 16> master_key;
+    for (int i = 0; i < 16; i++) master_key[i] = key[i];
+    auto rk = KeySchedule::ExpandKey(master_key);
+    
+    for (std::size_t i = 0; i < length; i += 8) {
+        SIMON64_State state;
+        state.Load(ciphertext + i);
+        
+        for (int r = 31; r >= 0; r--)
+            Primitives::EncryptRound(state.right, state.left, rk[r]);
+        
+        state.Store(plaintext + i);
+    }
+}
+
+void SIMON64_Utils::Modes::CTR_Encrypt(const uint8_t* key, const uint8_t* iv,
+                                       const uint8_t* plaintext, uint8_t* ciphertext, std::size_t length) {
+    std::array<uint8_t, 16> master_key;
+    for (int i = 0; i < 16; i++) master_key[i] = key[i];
+    auto rk = KeySchedule::ExpandKey(master_key);
+    
+    uint8_t counter[8];
+    for (int i = 0; i < 8; i++) counter[i] = iv[i];
+    
+    for (std::size_t i = 0; i < length; i += 8) {
+        SIMON64_State state;
+        state.Load(counter);
+        
+        for (int r = 0; r < 32; r++)
+            Primitives::EncryptRound(state.left, state.right, rk[r]);
+        
+        uint8_t keystream[8];
+        state.Store(keystream);
+        
+        std::size_t block_len = (length - i < 8) ? (length - i) : 8;
+        for (std::size_t j = 0; j < block_len; j++)
+            ciphertext[i + j] = plaintext[i + j] ^ keystream[j];
+        
+        for (int j = 7; j >= 0; j--) {
+            counter[j]++;
+            if (counter[j] != 0) break;
+        }
+    }
+}
+
+void SIMON64_Utils::Modes::CTR_Decrypt(const uint8_t* key, const uint8_t* iv,
+                                       const uint8_t* ciphertext, uint8_t* plaintext, std::size_t length) {
+    CTR_Encrypt(key, iv, ciphertext, plaintext, length);
+}

@@ -67,3 +67,25 @@ Trivium_State KeySchedule::Setup(const std::array<uint8_t, Trivium_Constants::KE
 }
 
 }
+
+void Trivium_Utils::Modes::CTR_Encrypt(const uint8_t* key, const uint8_t* nonce,
+                                       const uint8_t* plaintext, uint8_t* ciphertext, std::size_t length) {
+    std::array<uint8_t, 10> master_key, master_nonce;
+    for (int i = 0; i < 10; i++) {
+        master_key[i] = key[i];
+        master_nonce[i] = nonce[i];
+    }
+    
+    Trivium_State state = KeySchedule::Setup(master_key, master_nonce);
+    
+    for (std::size_t i = 0; i < length; i++) {
+        uint32_t keystream = Primitives::GenerateOutput(state);
+        ciphertext[i] = plaintext[i] ^ (keystream & 0xFF);
+        Primitives::UpdateState(state);
+    }
+}
+
+void Trivium_Utils::Modes::CTR_Decrypt(const uint8_t* key, const uint8_t* nonce,
+                                       const uint8_t* ciphertext, uint8_t* plaintext, std::size_t length) {
+    CTR_Encrypt(key, nonce, ciphertext, plaintext, length);
+}

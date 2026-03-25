@@ -63,3 +63,33 @@ Salsa20_State KeySchedule::Initialize(const std::array<uint8_t, Salsa20_Constant
 }
 
 }
+
+void Salsa20_Utils::Modes::CTR_Encrypt(const uint8_t* key, const uint8_t* nonce,
+                                       const uint8_t* plaintext, uint8_t* ciphertext, std::size_t length) {
+    std::array<uint8_t, 32> master_key;
+    std::array<uint8_t, 8> master_nonce;
+    for (int i = 0; i < 32; i++) master_key[i] = key[i];
+    for (int i = 0; i < 8; i++) master_nonce[i] = nonce[i];
+    
+    Salsa20_State state = KeySchedule::Initialize(master_key, master_nonce);
+    
+    for (std::size_t i = 0; i < length; i += 64) {
+        Salsa20_State block_state = state;
+        Primitives::ChaChaBlock(block_state);
+        
+        uint8_t keystream[64];
+        block_state.Store(keystream);
+        
+        std::size_t block_len = (length - i < 64) ? (length - i) : 64;
+        for (std::size_t j = 0; j < block_len; j++)
+            ciphertext[i + j] = plaintext[i + j] ^ keystream[j];
+        
+        state.words[12]++;
+        if (state.words[12] == 0) state.words[13]++;
+    }
+}
+
+void Salsa20_Utils::Modes::CTR_Decrypt(const uint8_t* key, const uint8_t* nonce,
+                                       const uint8_t* ciphertext, uint8_t* plaintext, std::size_t length) {
+    CTR_Encrypt(key, nonce, ciphertext, plaintext, length);
+}
