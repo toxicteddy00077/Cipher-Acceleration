@@ -164,3 +164,111 @@ std::array<AES_byte, AES256_Constants::EXPANDED_KEY_SIZE> KeySchedule::ExpandKey
 }
 
 } // namespace AES256_Utils
+
+void AES256_Utils::Modes::ECB_Encrypt(const AES_byte* key, const AES_byte* plaintext,
+                                       AES_byte* ciphertext, std::size_t length) {
+    auto expanded_key = KeySchedule::ExpandKey(
+        *reinterpret_cast<const std::array<AES_byte, 32>*>(key));
+    
+    for (std::size_t i = 0; i < length; i += 16) {
+        AES256_State state;
+        state.Load(plaintext + i);
+        
+        std::array<AES_byte, 16> rkey;
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[j];
+        state.XorRoundKey(rkey.data());
+        
+        for (int r = 1; r < 14; r++) {
+            Primitives::SubBytes(state);
+            Primitives::ShiftRows(state);
+            Primitives::MixColumns(state);
+            for (int j = 0; j < 16; j++) rkey[j] = expanded_key[r * 16 + j];
+            Primitives::AddRoundKey(state, rkey);
+        }
+        
+        Primitives::SubBytes(state);
+        Primitives::ShiftRows(state);
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[224 + j];
+        Primitives::AddRoundKey(state, rkey);
+        
+        state.Store(ciphertext + i);
+    }
+}
+
+void AES256_Utils::Modes::ECB_Decrypt(const AES_byte* key, const AES_byte* ciphertext,
+                                       AES_byte* plaintext, std::size_t length) {
+    auto expanded_key = KeySchedule::ExpandKey(
+        *reinterpret_cast<const std::array<AES_byte, 32>*>(key));
+    
+    for (std::size_t i = 0; i < length; i += 16) {
+        AES256_State state;
+        state.Load(ciphertext + i);
+        
+        std::array<AES_byte, 16> rkey;
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[224 + j];
+        state.XorRoundKey(rkey.data());
+        
+        for (int r = 13; r > 0; r--) {
+            Primitives::InvShiftRows(state);
+            Primitives::InvSubBytes(state);
+            for (int j = 0; j < 16; j++) rkey[j] = expanded_key[r * 16 + j];
+            Primitives::AddRoundKey(state, rkey);
+            Primitives::InvMixColumns(state);
+        }
+        
+        Primitives::InvShiftRows(state);
+        Primitives::InvSubBytes(state);
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[j];
+        Primitives::AddRoundKey(state, rkey);
+        
+        state.Store(plaintext + i);
+    }
+}
+
+void AES256_Utils::Modes::CTR_Encrypt(const AES_byte* key, const AES_byte* iv,
+                                      const AES_byte* plaintext, AES_byte* ciphertext, std::size_t length) {
+    auto expanded_key = KeySchedule::ExpandKey(
+        *reinterpret_cast<const std::array<AES_byte, 32>*>(key));
+    
+    uint8_t counter[16];
+    for (int i = 0; i < 16; i++) counter[i] = iv[i];
+    
+    for (std::size_t i = 0; i < length; i += 16) {
+        AES256_State state;
+        state.Load(counter);
+        
+        std::array<AES_byte, 16> rkey;
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[j];
+        state.XorRoundKey(rkey.data());
+        
+        for (int r = 1; r < 14; r++) {
+            Primitives::SubBytes(state);
+            Primitives::ShiftRows(state);
+            Primitives::MixColumns(state);
+            for (int j = 0; j < 16; j++) rkey[j] = expanded_key[r * 16 + j];
+            Primitives::AddRoundKey(state, rkey);
+        }
+        
+        Primitives::SubBytes(state);
+        Primitives::ShiftRows(state);
+        for (int j = 0; j < 16; j++) rkey[j] = expanded_key[224 + j];
+        Primitives::AddRoundKey(state, rkey);
+        
+        uint8_t keystream[16];
+        state.Store(keystream);
+        
+        std::size_t block_len = (length - i < 16) ? (length - i) : 16;
+        for (std::size_t j = 0; j < block_len; j++)
+            ciphertext[i + j] = plaintext[i + j] ^ keystream[j];
+        
+        for (int j = 15; j >= 0; j--) {
+            counter[j]++;
+            if (counter[j] != 0) break;
+        }
+    }
+}
+
+void AES256_Utils::Modes::CTR_Decrypt(const AES_byte* key, const AES_byte* iv,
+                                      const AES_byte* ciphertext, AES_byte* plaintext, std::size_t length) {
+    CTR_Encrypt(key, iv, ciphertext, plaintext, length);
+}
