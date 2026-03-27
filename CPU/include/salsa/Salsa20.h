@@ -41,6 +41,14 @@ namespace Salsa20_Utils {
         static Salsa20_State Initialize(const std::array<uint8_t, Salsa20_Constants::KEY_SIZE / 8>& key,
                                         const std::array<uint8_t, Salsa20_Constants::NONCE_SIZE / 8>& nonce);
     };
+
+    class Modes {
+    public:
+        static void CTR_Encrypt(const uint8_t* key, const uint8_t* nonce,
+                                const uint8_t* plaintext, uint8_t* ciphertext, std::size_t length);
+        static void CTR_Decrypt(const uint8_t* key, const uint8_t* nonce,
+                                const uint8_t* ciphertext, uint8_t* plaintext, std::size_t length);
+    };
 }
 
 #endif

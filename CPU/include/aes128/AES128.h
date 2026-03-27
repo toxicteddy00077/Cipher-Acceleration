@@ -58,6 +58,18 @@ namespace AES128_Utils {
         static void RotWord(AES_byte* word);
         static void SubWord(AES_byte* word);
     };
+
+    class Modes {
+    public:
+        static void ECB_Encrypt(const AES_byte* key, const AES_byte* plaintext,
+                                AES_byte* ciphertext, std::size_t length);
+        static void ECB_Decrypt(const AES_byte* key, const AES_byte* ciphertext,
+                                AES_byte* plaintext, std::size_t length);
+        static void CTR_Encrypt(const AES_byte* key, const AES_byte* iv,
+                                const AES_byte* plaintext, AES_byte* ciphertext, std::size_t length);
+        static void CTR_Decrypt(const AES_byte* key, const AES_byte* iv,
+                                const AES_byte* ciphertext, AES_byte* plaintext, std::size_t length);
+    };
 }
 
 #endif
