@@ -128,6 +128,21 @@ target_compile_options(trivium PRIVATE
 
 if(CUDA_FOUND)
 
+add_library(gpu_memory STATIC
+    GPU/src/common/GPUMemory.cu
+)
+
+target_include_directories(gpu_memory PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/GPU/include
+)
+
+target_compile_options(gpu_memory PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:
+        -Xptxas -O3;
+        -use_fast_math
+    >
+)
+
 add_library(aes256_gpu STATIC
     GPU/src/aes256/Constants.cu
     GPU/src/aes256/Core.cu
@@ -138,7 +153,7 @@ target_include_directories(aes256_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(aes256_gpu PUBLIC aes256)
+target_link_libraries(aes256_gpu PUBLIC aes256 gpu_memory)
 
 set_target_properties(aes256_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
@@ -164,7 +179,7 @@ target_include_directories(aes128_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(aes128_gpu PUBLIC aes128)
+target_link_libraries(aes128_gpu PUBLIC aes128 gpu_memory)
 
 set_target_properties(aes128_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
@@ -190,7 +205,7 @@ target_include_directories(simon64_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(simon64_gpu PUBLIC simon64)
+target_link_libraries(simon64_gpu PUBLIC simon64 gpu_memory)
 
 set_target_properties(simon64_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
@@ -216,7 +231,7 @@ target_include_directories(ascon_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(ascon_gpu PUBLIC ascon)
+target_link_libraries(ascon_gpu PUBLIC ascon gpu_memory)
 
 set_target_properties(ascon_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
@@ -242,7 +257,7 @@ target_include_directories(salsa20_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(salsa20_gpu PUBLIC salsa20)
+target_link_libraries(salsa20_gpu PUBLIC salsa20 gpu_memory)
 
 set_target_properties(salsa20_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
@@ -268,7 +283,7 @@ target_include_directories(trivium_gpu PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/CPU/include
 )
 
-target_link_libraries(trivium_gpu PUBLIC trivium)
+target_link_libraries(trivium_gpu PUBLIC trivium gpu_memory)
 
 set_target_properties(trivium_gpu PROPERTIES
     CUDA_ARCHITECTURES "75;86;89"
