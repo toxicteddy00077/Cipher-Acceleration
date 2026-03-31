@@ -12,12 +12,12 @@ namespace CommonUtils {
 // ============================================================
 
 template<typename T>
-constexpr T rotateLeft(T x, std::size_t n) {
+constexpr T rotL(T x, std::size_t n) {
     return (x << n) | (x >> (sizeof(T) * 8 - n));
 }
 
 template<typename T>
-constexpr T rotateRight(T x, std::size_t n) {
+constexpr T rotR(T x, std::size_t n) {
     return (x >> n) | (x << (sizeof(T) * 8 - n));
 }
 
@@ -26,12 +26,12 @@ constexpr T rotateRight(T x, std::size_t n) {
 // ============================================================
 
 template<typename T>
-inline T getBit(const T& word, std::size_t bit) {
+inline T getBt(const T& word, std::size_t bit) {
     return (word >> bit) & 1;
 }
 
 template<typename T>
-inline void setBit(T& word, std::size_t bit, T val) {
+inline void setBt(T& word, std::size_t bit, T val) {
     if (val) {
         word |= (1 << bit);
     } else {
@@ -40,12 +40,12 @@ inline void setBit(T& word, std::size_t bit, T val) {
 }
 
 template<typename T>
-inline T getBitFromArray(const std::array<T, 9>& state, std::size_t bit) {
+inline T getBtArr(const std::array<T, 9>& state, std::size_t bit) {
     return (state[bit / (sizeof(T) * 8)] >> (bit % (sizeof(T) * 8))) & 1;
 }
 
 template<typename T>
-inline void setBitInArray(std::array<T, 9>& state, std::size_t bit, T val) {
+inline void setBtArr(std::array<T, 9>& state, std::size_t bit, T val) {
     if (val) {
         state[bit / (sizeof(T) * 8)] |= (1 << (bit % (sizeof(T) * 8)));
     } else {
@@ -59,15 +59,15 @@ inline void setBitInArray(std::array<T, 9>& state, std::size_t bit, T val) {
 
 constexpr uint8_t GALOIS_POLY = 0x1B;
 
-inline uint8_t xtime(uint8_t x) {
+inline uint8_t xTime(uint8_t x) {
     return (x << 1) ^ ((x & 0x80) ? GALOIS_POLY : 0x00);
 }
 
-inline uint8_t galoisMult(uint8_t a, uint8_t b) {
+inline uint8_t gfMult(uint8_t a, uint8_t b) {
     uint8_t result = 0;
     while (b) {
         if (b & 1) result ^= a;
-        a = xtime(a);
+        a = xTime(a);
         b >>= 1;
     }
     return result;

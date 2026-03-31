@@ -29,17 +29,17 @@ namespace ASCON_Utils {
 
     class Primitives {
     public:
-        static void Permutation(ASCON_State &state, std::size_t rounds);
+        static void perm(ASCON_State &state, std::size_t rounds);
 
     private:
-        static void Round(ASCON_State &state, ASCON_word roundConstant);
-        static void LinearLayer(ASCON_State &state);
-        static void SubstitutionLayer(ASCON_State &state);
+        static void rnd(ASCON_State &state, ASCON_word roundConstant);
+        static void linLyr(ASCON_State &state);
+        static void subLyr(ASCON_State &state);
     };
 
     class KeySchedule {
     public:
-        static ASCON_State Initialize(const std::array<uint8_t, ASCON_Constants::KEY_SIZE / 8>& key,
+        static ASCON_State init(const std::array<uint8_t, ASCON_Constants::KEY_SIZE / 8>& key,
                                       const std::array<uint8_t, ASCON_Constants::NONCE_SIZE / 8>& nonce);
     };
 

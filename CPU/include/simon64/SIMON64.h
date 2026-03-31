@@ -28,7 +28,7 @@ namespace SIMON64_Utils {
 
     class Primitives {
     public:
-        static void EncryptRound(SIMON_word &left, SIMON_word &right, SIMON_word roundKey);
+        static void encRnd(SIMON_word &left, SIMON_word &right, SIMON_word roundKey);
 
     private:
         static constexpr std::size_t S1 = 1;
@@ -39,7 +39,7 @@ namespace SIMON64_Utils {
 
     class KeySchedule {
     public:
-        static std::array<SIMON_word, SIMON64_Constants::ROUNDS> ExpandKey(const std::array<uint8_t, SIMON64_Constants::KEY_SIZE / 8>& masterKey);
+        static std::array<SIMON_word, SIMON64_Constants::ROUNDS> expKey(const std::array<uint8_t, SIMON64_Constants::KEY_SIZE / 8>& masterKey);
     };
 
     class Modes {

@@ -35,14 +35,14 @@ namespace AES128_Utils {
 
     class Primitives {
     public:
-        static void SubBytes(AES128_State &state);
-        static void ShiftRows(AES128_State &state);
-        static void MixColumns(AES128_State &state);
-        static void AddRoundKey(AES128_State &state, const std::array<AES_byte, AES128_Constants::BLOCK_SIZE>& roundKey);
+        static void subBytes(AES128_State &state);
+        static void shiftRows(AES128_State &state);
+        static void mixCols(AES128_State &state);
+        static void addRndKey(AES128_State &state, const std::array<AES_byte, AES128_Constants::BLOCK_SIZE>& roundKey);
 
-        static void InvSubBytes(AES128_State &state);
-        static void InvShiftRows(AES128_State &state);
-        static void InvMixColumns(AES128_State &state);
+        static void invSubBytes(AES128_State &state);
+        static void invShiftRows(AES128_State &state);
+        static void invMixCols(AES128_State &state);
 
     private:
         static constexpr AES_byte AES_POLY = 0x1B;
@@ -52,7 +52,7 @@ namespace AES128_Utils {
 
     class KeySchedule {
     public:
-        static std::array<AES_byte, AES128_Constants::EXPANDED_KEY_SIZE> ExpandKey(const std::array<AES_byte, AES128_Constants::KEY_SIZE_128>& masterKey);
+        static std::array<AES_byte, AES128_Constants::EXPANDED_KEY_SIZE> expKey(const std::array<AES_byte, AES128_Constants::KEY_SIZE_128>& masterKey);
 
     private:
         static void RotWord(AES_byte* word);

@@ -27,13 +27,13 @@ namespace Salsa20_Utils {
 
     class Primitives {
     public:
-        static void ChaChaBlock(Salsa20_State &state);
+        static void chaChaBlk(Salsa20_State &state);
 
     private:
         static constexpr std::size_t ROTL(Salsa_word x, std::size_t n) {
             return (x << n) | (x >> (32 - n));
         }
-        static void QuarterRound(Salsa_word &a, Salsa_word &b, Salsa_word &c, Salsa_word &d);
+        static void qtrRnd(Salsa_word &a, Salsa_word &b, Salsa_word &c, Salsa_word &d);
     };
 
     class KeySchedule {

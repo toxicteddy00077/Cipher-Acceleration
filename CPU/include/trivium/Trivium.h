@@ -17,24 +17,24 @@ struct Trivium_State {
     std::array<uint32_t, 9> state;
 
     void Load(const uint8_t key[10], const uint8_t nonce[10]);
-    uint32_t GenerateKeystream();
+    uint32_t genKeystream();
 };
 
 namespace Trivium_Utils {
 
     class Primitives {
     public:
-        static void Initialize(Trivium_State &state, const uint8_t key[10], const uint8_t nonce[10]);
-        static uint32_t GenerateOutput(Trivium_State &state);
-        static void UpdateState(Trivium_State &state);
+        static void init(Trivium_State &state, const uint8_t key[10], const uint8_t nonce[10]);
+        static uint32_t genOutput(Trivium_State &state);
+        static void updState(Trivium_State &state);
 
     private:
-        static uint32_t Output(const Trivium_State &state);
+        static uint32_t genKs(const Trivium_State &state);
     };
 
     class KeySchedule {
     public:
-        static Trivium_State Setup(const std::array<uint8_t, Trivium_Constants::KEY_SIZE / 8>& key,
+        static Trivium_State setup(const std::array<uint8_t, Trivium_Constants::KEY_SIZE / 8>& key,
                                    const std::array<uint8_t, Trivium_Constants::NONCE_SIZE / 8>& nonce);
     };
 

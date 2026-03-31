@@ -37,15 +37,15 @@ namespace AES256_Utils {
     class Primitives {
     public:
         // Encryption Primitives
-        static void SubBytes(AES256_State &state);
-        static void ShiftRows(AES256_State &state);
-        static void MixColumns(AES256_State &state);
-        static void AddRoundKey(AES256_State &state, const std::array<AES_byte, AES256_Constants::BLOCK_SIZE>& roundKey);
+        static void subBytes(AES256_State &state);
+        static void shiftRows(AES256_State &state);
+        static void mixCols(AES256_State &state);
+        static void addRndKey(AES256_State &state, const std::array<AES_byte, AES256_Constants::BLOCK_SIZE>& roundKey);
 
         // Decryption Primitives
-        static void InvSubBytes(AES256_State &state);
-        static void InvShiftRows(AES256_State &state);
-        static void InvMixColumns(AES256_State &state);
+        static void invSubBytes(AES256_State &state);
+        static void invShiftRows(AES256_State &state);
+        static void invMixCols(AES256_State &state);
 
     private:
         // Internal Galois Field Multiplications 
@@ -57,7 +57,7 @@ namespace AES256_Utils {
     class KeySchedule {
     public:
         // Generates the 240-byte expanded key from the 32-byte input key
-        static std::array<AES_byte, AES256_Constants::EXPANDED_KEY_SIZE> ExpandKey(const std::array<AES_byte, AES256_Constants::KEY_SIZE_256>& masterKey);
+        static std::array<AES_byte, AES256_Constants::EXPANDED_KEY_SIZE> expKey(const std::array<AES_byte, AES256_Constants::KEY_SIZE_256>& masterKey);
 
     private:
         static void RotWord(AES_byte* word);
